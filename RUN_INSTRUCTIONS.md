@@ -87,9 +87,9 @@ Open **http://localhost:3000** in your browser.
 
 ## 👤 Test Accounts
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@unimart.ae` | `password123` |
+| Role | Username / Email | Password |
+|------|------------------|----------|
+| **Admin** | `Admin` | `admin` |
 | Student | `ahmed@hct.ac.ae` | `password123` |
 | Student | `sara@hct.ac.ae` | `password123` |
 
