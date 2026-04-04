@@ -1,0 +1,590 @@
+/* ===================================================
+   UniMart — Campus Marketplace | Custom Styles
+   On top of Bootstrap 5
+   =================================================== */
+
+/* ─── CSS Variables ─── */
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #3730a3;
+  --primary-light: #818cf8;
+  --secondary: #06b6d4;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --dark: #1e1b4b;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-600: #475569;
+  --gray-800: #1e293b;
+  --gradient-primary: linear-gradient(135deg, #4f46e5, #06b6d4);
+  --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Global ─── */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--gray-800);
+  background-color: var(--gray-50);
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+a:hover { color: var(--primary-dark); }
+
+/* ─── Navbar ─── */
+.navbar-unimart {
+  background: rgba(30, 27, 75, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.8rem 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  transition: var(--transition);
+}
+
+.navbar-unimart .navbar-brand {
+  font-weight: 800;
+  font-size: 1.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.navbar-unimart .nav-link {
+  color: rgba(255,255,255,0.8) !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.navbar-unimart .nav-link:hover,
+.navbar-unimart .nav-link.active {
+  color: #fff !important;
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-btn {
+  padding: 0.5rem 1.5rem !important;
+  border-radius: 50px !important;
+  font-weight: 600 !important;
+}
+.nav-btn-outline {
+  border: 2px solid var(--primary-light) !important;
+  color: var(--primary-light) !important;
+}
+.nav-btn-outline:hover {
+  background: var(--primary-light) !important;
+  color: #fff !important;
+}
+.nav-btn-primary {
+  background: var(--gradient-primary) !important;
+  color: #fff !important;
+  border: none !important;
+}
+.nav-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(79,70,229,0.4);
+}
+
+/* ─── Hero Section ─── */
+.hero-section {
+  background: var(--gradient-hero);
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(6,182,212,0.15), transparent 70%);
+  border-radius: 50%;
+}
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245,158,11,0.1), transparent 70%);
+  border-radius: 50%;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 1.5rem;
+}
+.hero-title span {
+  background: linear-gradient(135deg, #06b6d4, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 2rem;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+.hero-stat-label {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-illustration {
+  position: relative;
+  z-index: 2;
+}
+.hero-illustration img {
+  max-width: 100%;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+}
+
+/* ─── Buttons ─── */
+.btn-unimart {
+  background: var(--gradient-primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.btn-unimart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(79,70,229,0.4);
+  color: #fff;
+}
+.btn-unimart::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+.btn-unimart:hover::before { left: 100%; }
+
+.btn-unimart-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.4);
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-unimart-outline:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: #fff;
+  color: #fff;
+}
+
+.btn-unimart-secondary {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--gray-200);
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-unimart-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Cards ─── */
+.unimart-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+.unimart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
+}
+
+.unimart-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+  transition: var(--transition);
+}
+.unimart-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+.unimart-card .card-img-wrapper {
+  overflow: hidden;
+}
+
+.unimart-card .card-body {
+  padding: 1.25rem;
+}
+.unimart-card .card-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+}
+.unimart-card .card-price {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+.unimart-card .card-category {
+  display: inline-block;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  padding: 0.2rem 0.8rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.unimart-card .card-seller {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+}
+
+/* ─── Section Styling ─── */
+.section-heading {
+  font-weight: 800;
+  font-size: 2rem;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+.section-subheading {
+  color: var(--gray-600);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ─── Feature Section ─── */
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.feature-card:hover {
+  background: white;
+  box-shadow: var(--shadow-md);
+}
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+}
+.feature-icon-1 { background: rgba(79,70,229,0.1); color: var(--primary); }
+.feature-icon-2 { background: rgba(6,182,212,0.1); color: var(--secondary); }
+.feature-icon-3 { background: rgba(16,185,129,0.1); color: var(--success); }
+.feature-icon-4 { background: rgba(245,158,11,0.1); color: var(--accent); }
+
+/* ─── Footer ─── */
+.footer-unimart {
+  background: var(--dark);
+  color: rgba(255,255,255,0.7);
+  padding: 3rem 0 1.5rem;
+}
+.footer-unimart h5 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.footer-unimart a {
+  color: rgba(255,255,255,0.6);
+}
+.footer-unimart a:hover {
+  color: var(--secondary);
+}
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* ─── Auth Forms ─── */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-hero);
+  padding: 2rem;
+}
+.auth-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: var(--shadow-lg);
+}
+.auth-card h2 {
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+.auth-card .form-label {
+  font-weight: 600;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+}
+.auth-card .form-control {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--gray-200);
+  transition: var(--transition);
+}
+.auth-card .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.auth-card .btn-unimart {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+.form-control.is-invalid {
+  border-color: var(--danger);
+}
+.form-control.is-valid {
+  border-color: var(--success);
+}
+
+/* ─── Dashboard ─── */
+.dashboard-header {
+  background: var(--gradient-primary);
+  padding: 3rem 0;
+  color: #fff;
+}
+.dashboard-header h1 {
+  font-weight: 800;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid var(--gray-200);
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.stat-card .stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-card .stat-label {
+  color: var(--gray-600);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+/* ─── Page wrapper ─── */
+.page-wrapper {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+  min-height: calc(100vh - 200px);
+}
+
+.page-title {
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--dark);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Cart & Checkout ─── */
+.cart-table th {
+  background: var(--gray-100);
+  font-weight: 700;
+  color: var(--gray-800);
+  border: none;
+}
+.cart-table td {
+  vertical-align: middle;
+}
+.cart-total-row {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  background: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.qty-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ─── Toast Notification ─── */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+}
+
+/* ─── Search Bar ─── */
+.search-bar {
+  position: relative;
+}
+.search-bar .form-control {
+  padding-left: 2.5rem;
+  border-radius: 50px;
+  border: 2px solid var(--gray-200);
+}
+.search-bar .form-control:focus {
+  border-color: var(--primary);
+}
+.search-bar .search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-600);
+}
+
+/* ─── Filter Chips ─── */
+.filter-chip {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border-radius: 50px;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-600);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  background: white;
+}
+.filter-chip:hover,
+.filter-chip.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(79,70,229,0.05);
+}
+
+/* ─── Modal Refinements ─── */
+.modal-content {
+  border-radius: var(--radius);
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  border-bottom: 1px solid var(--gray-200);
+}
+.modal-footer {
+  border-top: 1px solid var(--gray-200);
+}
+
+/* ─── Animations ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+.animate-delay-1 { animation-delay: 0.1s; animation-fill-mode: both; }
+.animate-delay-2 { animation-delay: 0.2s; animation-fill-mode: both; }
+.animate-delay-3 { animation-delay: 0.3s; animation-fill-mode: both; }
+.animate-delay-4 { animation-delay: 0.4s; animation-fill-mode: both; }
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .hero-title { font-size: 2.2rem; }
+  .hero-subtitle { font-size: 1rem; }
+  .hero-stats { flex-direction: column; gap: 1rem; }
+  .section-heading { font-size: 1.5rem; }
+}
+@media (max-width: 576px) {
+  .auth-card { padding: 1.5rem; }
+  .hero-title { font-size: 1.8rem; }
+}

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Listings — UniMart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Shared Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="page-wrapper" style="padding-top:100px;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title mb-0"><i class="bi bi-box-seam"></i> My Listings</h1>
+                <button class="btn btn-unimart" data-bs-toggle="modal" data-bs-target="#productModal" id="addNewBtn">
+                    <i class="bi bi-plus-circle"></i> Add New
+                </button>
+            </div>
+
+            <div id="listingsContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle"><i class="bi bi-plus-circle"></i> New Listing</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm" novalidate>
+                        <input type="hidden" id="prodId">
+                        <div class="mb-3">
+                            <label for="prodTitle" class="form-label fw-bold">Title</label>
+                            <input type="text" class="form-control" id="prodTitle" placeholder="e.g. Calculus Textbook"
+                                required>
+                            <div class="form-error"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prodDesc" class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" id="prodDesc" rows="3" placeholder="Describe the item..."
+                                required></textarea>
+                            <div class="form-error"></div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label for="prodPrice" class="form-label fw-bold">Price (AED)</label>
+                                <input type="number" class="form-control" id="prodPrice" step="0.01" min="0.01"
+                                    placeholder="0.00" required>
+                                <div class="form-error"></div>
+                            </div>
+                            <div class="col-6">
+                                <label for="prodCategory" class="form-label fw-bold">Category</label>
+                                <select class="form-select" id="prodCategory" required>
+                                    <option value="">Select...</option>
+                                </select>
+                                <div class="form-error"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label for="prodImage" class="form-label fw-bold">Image URL <span
+                                    class="text-muted">(optional)</span></label>
+                            <input type="url" class="form-control" id="prodImage" placeholder="https://...">
+                            <small class="text-muted">Paste a direct link to an image. Leave blank for a default
+                                placeholder.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-unimart" id="saveProductBtn">
+                        <i class="bi bi-check-circle"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle"></i> Delete?</h5>
+                </div>
+                <div class="modal-body">Are you sure you want to delete this listing?</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger btn-sm" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-unimart">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none;margin-top:0;padding-top:0;">
+                <p class="mb-0">&copy; 2025 UniMart. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/validation.js"></script>
+    <script>
+        let deleteProductId = null;
+
+        $(document).ready(function () {
+            requireLogin(function () {
+                loadCategories();
+                loadMyListings();
+            });
+
+            // Reset modal for new listing
+            $('#addNewBtn').on('click', function () {
+                $('#modalTitle').html('<i class="bi bi-plus-circle"></i> New Listing');
+                $('#productForm')[0].reset();
+                $('#prodId').val('');
+                $('.form-control').removeClass('is-invalid is-valid');
+            });
+
+            // Save product
+            $('#saveProductBtn').on('click', function () {
+                if (!validateProductForm()) return;
+
+                const id = $('#prodId').val();
+                const data = {
+                    title: $('#prodTitle').val().trim(),
+                    description: $('#prodDesc').val().trim(),
+                    price: parseFloat($('#prodPrice').val()),
+                    category_id: $('#prodCategory').val(),
+                    image_url: $('#prodImage').val().trim() || null
+                };
+
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `/api/products/${id}` : '/api/products';
+
+                $.ajax({
+                    url, method, contentType: 'application/json', data: JSON.stringify(data),
+                    success: function () {
+                        bootstrap.Modal.getInstance($('#productModal')[0]).hide();
+                        showToast(id ? 'Listing updated!' : 'Listing created!', 'success');
+                        loadMyListings();
+                    },
+                    error: function (xhr) {
+                        showToast(xhr.responseJSON?.error || 'Failed to save.', 'danger');
+                    }
+                });
+            });
+
+            // Edit button
+            $(document).on('click', '.edit-listing', function () {
+                const id = $(this).data('id');
+                $.get(`/api/products/${id}`, function (p) {
+                    $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Listing');
+                    $('#prodId').val(p.id);
+                    $('#prodTitle').val(p.title);
+                    $('#prodDesc').val(p.description);
+                    $('#prodPrice').val(p.price);
+                    $('#prodCategory').val(p.category_id);
+                    $('#prodImage').val(p.image_url || '');
+                    new bootstrap.Modal($('#productModal')[0]).show();
+                });
+            });
+
+            // Delete button
+            $(document).on('click', '.delete-listing', function () {
+                deleteProductId = $(this).data('id');
+                new bootstrap.Modal($('#deleteModal')[0]).show();
+            });
+
+            $('#confirmDeleteBtn').on('click', function () {
+                if (!deleteProductId) return;
+                $.ajax({
+                    url: `/api/products/${deleteProductId}`, method: 'DELETE',
+                    success: function () {
+                        bootstrap.Modal.getInstance($('#deleteModal')[0]).hide();
+                        showToast('Listing deleted.', 'success');
+                        loadMyListings();
+                    }
+                });
+            });
+        });
+
+        function loadCategories() {
+            $.get('/api/categories', function (cats) {
+                cats.forEach(c => $('#prodCategory').append(`<option value="${c.id}">${escapeHtml(c.name)}</option>`));
+            });
+        }
+
+        function loadMyListings() {
+            $.get('/api/products/user/mine', function (products) {
+                if (products.length === 0) {
+                    $('#listingsContent').html(`
+            <div class="text-center py-5">
+              <i class="bi bi-box-seam display-1 text-muted"></i>
+              <h4 class="mt-3 text-muted">No listings yet</h4>
+              <p class="text-muted">Post your first item!</p>
+            </div>`);
+                    return;
+                }
+
+                let cards = '<div class="row g-4">';
+                products.forEach(function (p) {
+                    const statusBadge = p.status === 'sold'
+                        ? '<span class="badge bg-secondary">Sold</span>'
+                        : '<span class="badge bg-success">Available</span>';
+                    cards += `
+            <div class="col-md-4 col-sm-6 animate-fade-in-up">
+              <div class="unimart-card">
+                <div class="card-img-wrapper">
+                  <img src="${escapeHtml(p.image_url) || 'https://placehold.co/400x300/e2e8f0/475569?text=No+Image'}" class="card-img-top" alt="${escapeHtml(p.title)}">
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="card-category">${escapeHtml(p.category_name)}</span>
+                    ${statusBadge}
+                  </div>
+                  <h5 class="card-title">${escapeHtml(p.title)}</h5>
+                  <p class="card-price">AED ${parseFloat(p.price).toFixed(2)}</p>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-fill edit-listing" data-id="${p.id}">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger flex-fill delete-listing" data-id="${p.id}">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+                });
+                cards += '</div>';
+                $('#listingsContent').html(cards);
+            });
+        }
+    </script>
+</body>
+
+</html>
