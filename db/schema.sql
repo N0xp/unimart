@@ -87,17 +87,46 @@ INSERT IGNORE INTO categories (name) VALUES
   ('Sports'),
   ('Other');
 
--- Sample user (password: "password123" hashed with bcrypt)
+-- Sample user (password: Admin = "admin", Students = "password123" — hashed with bcrypt)
 INSERT IGNORE INTO users (name, email, password, phone, is_admin) VALUES
-  ('Admin', 'admin@unimart.ae', '$2b$10$BXf1cqt.M7HP1FZaWAX.f.gPkJMphzutlkNISeNjpnE6FO/SAcdsi', '0000000000', TRUE),
-  ('Ahmed Ali', 'ahmed@hct.ac.ae', '$2a$10$8K1p/a0dL1FXMIgoEDFrwOfMQkG4Y0eAqFhbhVPVhFmJGW6bM6Cwe', '0501234567', FALSE),
-  ('Sara Mohammed', 'sara@hct.ac.ae', '$2a$10$8K1p/a0dL1FXMIgoEDFrwOfMQkG4Y0eAqFhbhVPVhFmJGW6bM6Cwe', '0507654321', FALSE);
+  ('Admin', 'admin@unimart.ae', '$2b$10$/Sv/mJ/Pj0pxydeEKqBcm.18uwJ1Cj.BO6uu80JP89NbVgpGLi46G', '0000000000', TRUE),
+  ('Ahmed Ali', 'ahmed@hct.ac.ae', '$2b$10$LkZsvOxAE/T8QkussKHXZ.cmCcUmFxk.yzIQ2FF1aL8lxJAlhHAOq', '0501234567', FALSE),
+  ('Sara Mohammed', 'sara@hct.ac.ae', '$2b$10$LkZsvOxAE/T8QkussKHXZ.cmCcUmFxk.yzIQ2FF1aL8lxJAlhHAOq', '0507654321', FALSE);
 
 -- Sample products
-INSERT IGNORE INTO products (seller_id, category_id, title, description, price, image_url) VALUES
-  (1, 1, 'Data Structures Textbook', 'Gently used Data Structures and Algorithms textbook, 3rd edition. Highlights on some pages.', 45.00, 'https://placehold.co/400x300/2563eb/ffffff?text=DS+Textbook'),
-  (1, 2, 'TI-84 Calculator', 'Texas Instruments TI-84 Plus graphing calculator. Works perfectly, includes batteries.', 65.00, 'https://placehold.co/400x300/7c3aed/ffffff?text=Calculator'),
-  (2, 1, 'Calculus Early Transcendentals', 'James Stewart Calculus, 8th edition. Like new condition, no writing or highlights.', 55.00, 'https://placehold.co/400x300/059669/ffffff?text=Calculus'),
-  (2, 3, 'Notebook Bundle (5 pack)', 'Five A4 spiral notebooks, college ruled. Brand new, unopened.', 12.00, 'https://placehold.co/400x300/d97706/ffffff?text=Notebooks'),
-  (1, 2, 'Wireless Mouse', 'Logitech M185 wireless mouse. Battery lasts 12 months, USB receiver included.', 15.00, 'https://placehold.co/400x300/dc2626/ffffff?text=Mouse'),
-  (2, 4, 'HCT Hoodie Size L', 'Official HCT branded hoodie, size Large. Worn twice, like new.', 35.00, 'https://placehold.co/400x300/4f46e5/ffffff?text=Hoodie');
+-- Use email/category lookups and NOT EXISTS so this seed can be re-run safely.
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'Data Structures Textbook', 'Gently used Data Structures and Algorithms textbook, 3rd edition. Highlights on some pages.', 45.00, 'https://placehold.co/400x300/2563eb/ffffff?text=DS+Textbook'
+FROM users u JOIN categories c ON c.name = 'Textbooks'
+WHERE u.email = 'admin@unimart.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'Data Structures Textbook');
+
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'TI-84 Calculator', 'Texas Instruments TI-84 Plus graphing calculator. Works perfectly, includes batteries.', 65.00, 'https://placehold.co/400x300/7c3aed/ffffff?text=Calculator'
+FROM users u JOIN categories c ON c.name = 'Electronics'
+WHERE u.email = 'admin@unimart.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'TI-84 Calculator');
+
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'Calculus Early Transcendentals', 'James Stewart Calculus, 8th edition. Like new condition, no writing or highlights.', 55.00, 'https://placehold.co/400x300/059669/ffffff?text=Calculus'
+FROM users u JOIN categories c ON c.name = 'Textbooks'
+WHERE u.email = 'ahmed@hct.ac.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'Calculus Early Transcendentals');
+
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'Notebook Bundle (5 pack)', 'Five A4 spiral notebooks, college ruled. Brand new, unopened.', 12.00, 'https://placehold.co/400x300/d97706/ffffff?text=Notebooks'
+FROM users u JOIN categories c ON c.name = 'Stationery'
+WHERE u.email = 'ahmed@hct.ac.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'Notebook Bundle (5 pack)');
+
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'Wireless Mouse', 'Logitech M185 wireless mouse. Battery lasts 12 months, USB receiver included.', 15.00, 'https://placehold.co/400x300/dc2626/ffffff?text=Mouse'
+FROM users u JOIN categories c ON c.name = 'Electronics'
+WHERE u.email = 'admin@unimart.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'Wireless Mouse');
+
+INSERT INTO products (seller_id, category_id, title, description, price, image_url)
+SELECT u.id, c.id, 'HCT Hoodie Size L', 'Official HCT branded hoodie, size Large. Worn twice, like new.', 35.00, 'https://placehold.co/400x300/4f46e5/ffffff?text=Hoodie'
+FROM users u JOIN categories c ON c.name = 'Clothing'
+WHERE u.email = 'ahmed@hct.ac.ae'
+  AND NOT EXISTS (SELECT 1 FROM products p WHERE p.seller_id = u.id AND p.title = 'HCT Hoodie Size L');

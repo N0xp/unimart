@@ -109,10 +109,9 @@ app.use('/api/orders', requireAuth, orderRoutes);
 app.use('/api/users', requireAuth, userRoutes);
 
 // ─── Category route (simple) ───
-const db = require('./db/connection');
 app.get('/api/categories', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM categories ORDER BY name');
+    const [rows] = await dbPool.query('SELECT * FROM categories ORDER BY name');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch categories' });
@@ -141,8 +140,32 @@ app.use((err, req, res, _next) => {
 });
 
 // ─── Start server ───
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ UniMart server running at http://localhost:${PORT}`);
 });
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use.`);
+    console.error('   Change PORT in .env, for example PORT=3001, then restart the server.');
+    process.exit(1);
+  }
+  throw err;
+});
+
+// ─── Graceful Shutdown ───
+function gracefulShutdown(signal) {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  server.close(() => {
+    dbPool.end().then(() => {
+      console.log('Database pool closed.');
+      process.exit(0);
+    }).catch(() => process.exit(1));
+  });
+  // Force exit after 10s if graceful shutdown fails
+  setTimeout(() => process.exit(1), 10000);
+}
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 module.exports = app;

@@ -5,13 +5,20 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../db/connection');
+const { stripHtml } = require('../middleware/sanitize');
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const name = stripHtml(req.body.name || '');
+        const email = String(req.body.email || '').trim().toLowerCase();
+        const password = req.body.password;
+        const phone = stripHtml(req.body.phone || '');
         if (!name || !email || !password) {
             return res.status(400).json({ error: 'Name, email, and password are required.' });
+        }
+        if (name.length < 2 || name.length > 100) {
+            return res.status(400).json({ error: 'Name must be between 2 and 100 characters.' });
         }
         // Validate email format
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -43,14 +50,16 @@ router.post('/register', async (req, res) => {
 // Supports login by email OR username (name field)
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const email = String(req.body.email || '').trim();
+        const password = req.body.password;
         if (!email || !password) {
             return res.status(400).json({ error: 'Email/username and password are required.' });
         }
         // Try matching by email first, then by name (username)
+        // ORDER BY prioritizes exact email match; LIMIT 1 avoids ambiguity
         const [rows] = await db.query(
-            'SELECT * FROM users WHERE email = ? OR name = ?',
-            [email, email]
+            'SELECT * FROM users WHERE email = ? OR name = ? ORDER BY (email = ?) DESC LIMIT 1',
+            [email, email, email]
         );
         if (rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials.' });
@@ -60,14 +69,24 @@ router.post('/login', async (req, res) => {
         if (!match) {
             return res.status(401).json({ error: 'Invalid credentials.' });
         }
-        // Create session
+
+        await new Promise((resolve, reject) => {
+            req.session.regenerate((err) => err ? reject(err) : resolve());
+        });
+
         req.session.user = {
             id: user.id,
             name: user.name,
             email: user.email,
             is_admin: user.is_admin ? true : false
         };
-        res.json({ message: 'Login successful.', user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin ? true : false } });
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Server error during login.' });
+            }
+            res.json({ message: 'Login successful.', user: req.session.user });
+        });
     } catch (err) {
         console.error('Login error:', err);
         res.status(500).json({ error: 'Server error during login.' });

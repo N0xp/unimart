@@ -7,24 +7,29 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
 
+function parsePositiveInt(value) {
+    const num = Number.parseInt(value, 10);
+    return Number.isInteger(num) && num > 0 ? num : null;
+}
+
 // POST /api/orders — place order from cart
 router.post('/', async (req, res) => {
-    const connection = await db.getConnection();
-    try {
-        const { address, phone } = req.body;
+    // Validate inputs before acquiring a connection to avoid leaks
+        const address = String(req.body.address || '').trim();
+        const phone = String(req.body.phone || '').trim();
         if (!address || !phone) {
-            connection.release();
             return res.status(400).json({ error: 'Address and phone are required.' });
         }
-        if (address.trim().length < 5) {
-            connection.release();
+        if (address.length < 5) {
             return res.status(400).json({ error: 'Please provide a valid address.' });
         }
-        if (!/^[0-9]{10,}$/.test(phone.trim())) {
-            connection.release();
+        if (!/^[0-9]{10,}$/.test(phone)) {
             return res.status(400).json({ error: 'Please provide a valid phone number.' });
         }
 
+    let connection;
+    try {
+        connection = await db.getConnection();
         await connection.beginTransaction();
 
         // Get cart items with product details
@@ -37,7 +42,6 @@ router.post('/', async (req, res) => {
 
         if (cartItems.length === 0) {
             await connection.rollback();
-            connection.release();
             return res.status(400).json({ error: 'Cart is empty.' });
         }
 
@@ -45,7 +49,6 @@ router.post('/', async (req, res) => {
         const ownProducts = cartItems.filter(item => item.seller_id === req.session.user.id);
         if (ownProducts.length > 0) {
             await connection.rollback();
-            connection.release();
             return res.status(400).json({ error: 'You cannot purchase your own products. Please remove them from your cart.' });
         }
 
@@ -53,7 +56,6 @@ router.post('/', async (req, res) => {
         const unavailable = cartItems.filter(item => item.status !== 'available');
         if (unavailable.length > 0) {
             await connection.rollback();
-            connection.release();
             return res.status(400).json({
                 error: `Some items are no longer available: ${unavailable.map(i => i.title).join(', ')}`
             });
@@ -65,7 +67,7 @@ router.post('/', async (req, res) => {
         // Create order
         const [orderResult] = await connection.query(
             'INSERT INTO orders (buyer_id, total_price, address, phone) VALUES (?, ?, ?, ?)',
-            [req.session.user.id, totalPrice, address.trim(), phone.trim()]
+            [req.session.user.id, totalPrice, address, phone]
         );
         const orderId = orderResult.insertId;
 
@@ -100,11 +102,13 @@ router.post('/', async (req, res) => {
         await connection.commit();
         res.status(201).json({ message: 'Order placed successfully!', orderId });
     } catch (err) {
-        await connection.rollback();
+        if (connection) {
+            try { await connection.rollback(); } catch (_) { /* ignore rollback error */ }
+        }
         console.error('Order error:', err);
         res.status(500).json({ error: 'Failed to place order.' });
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 });
 
@@ -129,10 +133,11 @@ router.get('/', async (req, res) => {
         }
 
         // Issue #12 FIX: Fetch ALL order items in a single query
+        // Use LEFT JOIN so items remain visible even if the product was deleted
         const orderIds = orders.map(o => o.id);
         const [allItems] = await db.query(
-            `SELECT oi.*, p.title, p.image_url FROM order_items oi 
-       JOIN products p ON oi.product_id = p.id 
+            `SELECT oi.*, COALESCE(p.title, 'Deleted Product') AS title, p.image_url FROM order_items oi
+       LEFT JOIN products p ON oi.product_id = p.id
        WHERE oi.order_id IN (${orderIds.map(() => '?').join(',')})`,
             orderIds
         );
@@ -163,10 +168,14 @@ router.delete('/:id', async (req, res) => {
             return res.status(403).json({ error: 'Admin access required.' });
         }
 
-        const [existing] = await db.query('SELECT id FROM orders WHERE id = ?', [req.params.id]);
+        const orderId = parsePositiveInt(req.params.id);
+        if (!orderId) {
+            return res.status(400).json({ error: 'Invalid order ID.' });
+        }
+        const [existing] = await db.query('SELECT id FROM orders WHERE id = ?', [orderId]);
         if (existing.length === 0) return res.status(404).json({ error: 'Order not found.' });
 
-        await db.query('DELETE FROM orders WHERE id = ?', [req.params.id]);
+        await db.query('DELETE FROM orders WHERE id = ?', [orderId]);
         res.json({ message: 'Order deleted successfully.' });
     } catch (err) {
         console.error('Order delete error:', err);

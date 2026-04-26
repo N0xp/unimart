@@ -32,7 +32,7 @@ Create the database and seed it with initial data.
 
 In the project root, open `.env` and update database credentials:
 ```env
-PORT=3000
+PORT=3001
 SESSION_SECRET=<your-random-secret-key>
 
 # MySQL Database
@@ -77,11 +77,11 @@ npm start
 
 After starting, you should see:
 ```
-✅ UniMart server running at http://localhost:3000
+✅ UniMart server running at http://localhost:3001
 ✅ Database connected successfully.
 ```
 
-Open **http://localhost:3000** in your browser.
+Open **http://localhost:3001** in your browser.
 
 ---
 
@@ -89,7 +89,7 @@ Open **http://localhost:3000** in your browser.
 
 | Role | Username / Email | Password |
 |------|------------------|----------|
-| **Admin** | `Admin` | `admin` |
+| **Admin** | `Admin` or `admin@unimart.ae` | `admin` |
 | Student | `ahmed@hct.ac.ae` | `password123` |
 | Student | `sara@hct.ac.ae` | `password123` |
 
@@ -155,6 +155,6 @@ UniMart/
 | Error | Fix |
 |-------|-----|
 | `ER_ACCESS_DENIED_ERROR` | Update `DB_PASS` in `.env` with your MySQL password |
-| `EADDRINUSE: port 3000` | Kill existing process: `lsof -ti :3000 \| xargs kill -9` or change `PORT` in `.env` |
+| `EADDRINUSE: port 3001` | Kill existing process: `lsof -ti :3001 \| xargs kill -9` or change `PORT` in `.env` |
 | `ECONNREFUSED` | Ensure MySQL server is running |
 | `❌ Database connection failed` | Check `.env` credentials and MySQL service status |

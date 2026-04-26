@@ -1,12 +1,12 @@
 {
   "name": "unimart",
   "version": "1.0.0",
-  "description": "",
+  "description": "UniMart — Campus Marketplace for buying and selling second-hand items among university students.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test_e2e.js"
   },
   "keywords": [],
   "author": "",

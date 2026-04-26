@@ -163,7 +163,7 @@
         function loadAdminData() {
             const activeTab = $('.nav-link.active').attr('id');
             if (activeTab === 'products-tab') {
-                $.get('/api/products', function (products) {
+                $.get('/api/products', { all: true }, function (products) {
                     const tbody = $('#adminProductsBody');
                     tbody.empty();
                     if (products.length === 0) {
